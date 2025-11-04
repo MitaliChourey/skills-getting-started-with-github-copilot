@@ -159,13 +159,17 @@ footer {
 }
 
 .participants-list {
-  list-style: disc;
-  margin-left: 18px;
+  /* hide default bullets and align items neatly */
+  list-style: none;
+  margin: 0;
   margin-top: 6px;
-  padding-left: 0;
+  padding: 0;
 }
 
-.participants-list li {
+.participant-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   background: #ffffff;
   border: 1px solid #f0f0f0;
   padding: 8px 10px;
@@ -174,6 +178,24 @@ footer {
   font-size: 14px;
   color: #333;
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.02);
+}
+
+.participant-item span {
+  word-break: break-word;
+}
+
+.remove-btn {
+  background: transparent;
+  border: none;
+  color: #c62828;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+
+.remove-btn:hover {
+  background: rgba(198, 40, 40, 0.08);
 }
 
 /* Fallback when there are no participants */

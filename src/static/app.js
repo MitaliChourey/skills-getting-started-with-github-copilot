@@ -13,6 +13,9 @@ document.addEventListener("DOMContentLoaded", () => {
       // Clear loading message
       activitiesList.innerHTML = "";
 
+      // Reset activity select to avoid duplicate options on refresh
+      activitySelect.innerHTML = '<option value="">-- Select an activity --</option>';
+
       // Populate activities list
       Object.entries(activities).forEach(([name, details]) => {
         const activityCard = document.createElement("div");
@@ -21,18 +24,13 @@ document.addEventListener("DOMContentLoaded", () => {
         const participants = Array.isArray(details.participants) ? details.participants : [];
         const spotsLeft = details.max_participants - participants.length;
 
-        // Build participants HTML
+        // Build participants container (we'll populate the list nodes with JS so we can attach handlers)
         let participantsHtml = "";
         if (participants.length > 0) {
-          const items = participants
-            .map((p) => `<li>${escapeHtml(p)}</li>`)
-            .join("");
           participantsHtml = `
             <div class="participants" aria-live="polite">
               <strong>Participants (${participants.length}):</strong>
-              <ul class="participants-list">
-                ${items}
-              </ul>
+              <ul class="participants-list"></ul>
             </div>
           `;
         } else {
@@ -52,13 +50,67 @@ document.addEventListener("DOMContentLoaded", () => {
           ${participantsHtml}
         `;
 
+        // Append card then populate participants list with buttons
         activitiesList.appendChild(activityCard);
 
-        // Add option to select dropdown
+        // Add option to select dropdown (avoid duplication by resetting the select earlier)
         const option = document.createElement("option");
         option.value = name;
         option.textContent = name;
         activitySelect.appendChild(option);
+
+        // If there are participants, populate the list with items and delete buttons
+        if (participants.length > 0) {
+          const ul = activityCard.querySelector('.participants-list');
+          participants.forEach((p) => {
+            const li = document.createElement('li');
+            li.className = 'participant-item';
+
+            const span = document.createElement('span');
+            span.textContent = p;
+
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'remove-btn';
+            btn.setAttribute('aria-label', `Remove ${p}`);
+            btn.innerHTML = '✖';
+
+            // Click handler to unregister participant
+            btn.addEventListener('click', async (e) => {
+              e.preventDefault();
+              // Confirm remove (small safeguard)
+              const ok = confirm(`Unregister ${p} from ${name}?`);
+              if (!ok) return;
+
+              try {
+                const resp = await fetch(`/activities/${encodeURIComponent(name)}/participants?email=${encodeURIComponent(p)}`, {
+                  method: 'DELETE',
+                });
+
+                const resJson = await resp.json();
+                if (resp.ok) {
+                  // Refresh the activities to update UI and select options
+                  await fetchActivities();
+                } else {
+                  messageDiv.textContent = resJson.detail || 'Failed to remove participant';
+                  messageDiv.className = 'error';
+                  messageDiv.classList.remove('hidden');
+                  setTimeout(() => messageDiv.classList.add('hidden'), 5000);
+                }
+              } catch (err) {
+                console.error('Error removing participant:', err);
+                messageDiv.textContent = 'Failed to remove participant. Please try again.';
+                messageDiv.className = 'error';
+                messageDiv.classList.remove('hidden');
+                setTimeout(() => messageDiv.classList.add('hidden'), 5000);
+              }
+            });
+
+            li.appendChild(span);
+            li.appendChild(btn);
+            ul.appendChild(li);
+          });
+        }
       });
     } catch (error) {
       activitiesList.innerHTML = "<p>Failed to load activities. Please try again later.</p>";
