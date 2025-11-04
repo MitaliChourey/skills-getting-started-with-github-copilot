@@ -18,13 +18,38 @@ document.addEventListener("DOMContentLoaded", () => {
         const activityCard = document.createElement("div");
         activityCard.className = "activity-card";
 
-        const spotsLeft = details.max_participants - details.participants.length;
+        const participants = Array.isArray(details.participants) ? details.participants : [];
+        const spotsLeft = details.max_participants - participants.length;
+
+        // Build participants HTML
+        let participantsHtml = "";
+        if (participants.length > 0) {
+          const items = participants
+            .map((p) => `<li>${escapeHtml(p)}</li>`)
+            .join("");
+          participantsHtml = `
+            <div class="participants" aria-live="polite">
+              <strong>Participants (${participants.length}):</strong>
+              <ul class="participants-list">
+                ${items}
+              </ul>
+            </div>
+          `;
+        } else {
+          participantsHtml = `
+            <div class="participants empty" aria-live="polite">
+              <strong>Participants:</strong>
+              <p class="no-participants">No participants yet — be the first!</p>
+            </div>
+          `;
+        }
 
         activityCard.innerHTML = `
-          <h4>${name}</h4>
-          <p>${details.description}</p>
-          <p><strong>Schedule:</strong> ${details.schedule}</p>
+          <h4>${escapeHtml(name)}</h4>
+          <p>${escapeHtml(details.description)}</p>
+          <p><strong>Schedule:</strong> ${escapeHtml(details.schedule)}</p>
           <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
+          ${participantsHtml}
         `;
 
         activitiesList.appendChild(activityCard);
@@ -39,6 +64,17 @@ document.addEventListener("DOMContentLoaded", () => {
       activitiesList.innerHTML = "<p>Failed to load activities. Please try again later.</p>";
       console.error("Error fetching activities:", error);
     }
+  }
+
+  // Small helper to avoid injecting raw HTML from API values
+  function escapeHtml(str) {
+    if (typeof str !== "string") return "";
+    return str
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
   }
 
   // Handle form submission
