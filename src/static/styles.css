@@ -63,6 +63,7 @@ section h3 {
   border: 1px solid #ddd;
   border-radius: 5px;
   background-color: #f9f9f9;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .activity-card h4 {
@@ -141,4 +142,69 @@ footer {
   margin-top: 30px;
   padding: 20px;
   color: #666;
+}
+
+/* Participants section styles */
+.participants {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed #e6e6e6;
+  color: #444;
+}
+
+.participants strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #1a237e;
+}
+
+.participants-list {
+  /* hide default bullets and align items neatly */
+  list-style: none;
+  margin: 0;
+  margin-top: 6px;
+  padding: 0;
+}
+
+.participant-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border: 1px solid #f0f0f0;
+  padding: 8px 10px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #333;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.02);
+}
+
+.participant-item span {
+  word-break: break-word;
+}
+
+.remove-btn {
+  background: transparent;
+  border: none;
+  color: #c62828;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+
+.remove-btn:hover {
+  background: rgba(198, 40, 40, 0.08);
+}
+
+/* Fallback when there are no participants */
+.participants.empty .no-participants {
+  margin-top: 6px;
+  color: #666;
+  font-style: italic;
+  background: #fbfcfd;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px dashed #eef3ff;
 }
